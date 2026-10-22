@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AIB · 练手 Hero</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg: #080104;
+      --pink: #ff1053;
+      --red: #e6004c;
+    }
+    body {
+      font-family: "Plus Jakarta Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: #fff;
+    }
+    .display {
+      font-family: "Outfit", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .vignette {
+      background: radial-gradient(ellipse 68% 68% at 50% 50%, transparent 22%, rgba(8, 1, 4, 0.4) 50%, rgba(8, 1, 4, 0.8) 75%, rgba(8, 1, 4, 0.98) 100%);
+    }
+    .glass {
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .glass:hover {
+      border-color: rgba(255, 16, 83, 0.85);
+      box-shadow: 0 0 24px rgba(230, 0, 76, 0.35);
+    }
+    .nav-active::after {
+      content: "";
+      display: block;
+      height: 2px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), var(--pink));
+      box-shadow: 0 0 10px rgba(255, 16, 83, 0.8);
+    }
+    #particles {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .drawer {
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    .drawer.open {
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden">
+  <div class="relative min-h-screen">
+    <!-- Background video -->
+    <video
+      class="absolute inset-0 h-full w-full object-cover"
+      autoplay
+      loop
+      muted
+      playsinline
+      poster=""
+    >
+      <source src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/bg-red-ball.mp4" type="video/mp4" />
+    </video>
+    <div class="vignette absolute inset-0 z-[1]"></div>
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-[1] h-32 bg-gradient-to-b from-[#080104]/90 to-transparent"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-t from-[#080104] to-transparent"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Header -->
+    <header class="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 md:px-8">
+      <div class="glass display flex h-11 min-w-11 items-center justify-center rounded-xl px-2 text-sm font-black tracking-wide">
+        AIB
+      </div>
+
+      <nav class="hidden items-center gap-7 text-[11px] font-semibold tracking-[0.22em] text-white/80 lg:flex">
+        <a class="nav-active text-white" href="#home">首页</a>
+        <a class="hover:text-white" href="#product">产品</a>
+        <a class="hover:text-white" href="#capability">能力</a>
+        <a class="hover:text-white" href="#solutions">方案</a>
+        <a class="hover:text-white" href="#customers">客户</a>
+        <a class="hover:text-white" href="#contact">联系</a>
+      </nav>
+
+      <a href="#contact" class="glass hidden rounded-full px-5 py-2.5 text-[11px] font-bold tracking-[0.18em] lg:inline-block">
+        联系我们
+      </a>
+
+      <button id="menuBtn" type="button" class="glass rounded-xl p-2.5 lg:hidden" aria-label="打开菜单">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+      </button>
+    </header>
+
+    <!-- Mobile drawer -->
+    <div id="drawer" class="drawer fixed inset-0 z-50 bg-[#080104]/85 backdrop-blur-xl lg:hidden">
+      <div class="flex items-center justify-between px-5 py-5">
+        <div class="glass display flex h-11 items-center justify-center rounded-xl px-3 text-sm font-black">AIB</div>
+        <button id="closeBtn" type="button" class="glass rounded-xl p-2.5" aria-label="关闭菜单">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+      <nav class="mt-10 flex flex-col gap-6 px-8 text-lg font-semibold tracking-wide text-white/90">
+        <a href="#home">首页</a>
+        <a href="#product">产品</a>
+        <a href="#capability">能力</a>
+        <a href="#solutions">方案</a>
+        <a href="#customers">客户</a>
+        <a href="#contact">联系</a>
+        <a href="#contact" class="glass mt-4 inline-flex w-max rounded-full px-5 py-3 text-sm tracking-[0.16em]">联系我们</a>
+      </nav>
+    </div>
+
+    <!-- Hero -->
+    <main id="home" class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 pb-16 pt-8 md:px-8 lg:grid-cols-12 lg:gap-6 lg:pt-16">
+      <section class="lg:col-span-5">
+        <p class="text-xs font-bold tracking-[0.3em] text-[#e6004c] sm:text-sm">AI FOR BIOPHARMA</p>
+        <h1 class="display mt-4 text-4xl font-black uppercase leading-[1.05] text-white sm:text-6xl lg:text-[72px] lg:leading-[0.96] normal-case">
+          用自然语言<br />指挥 AI
+        </h1>
+        <p class="mt-6 max-w-xl text-sm leading-relaxed text-white/75 sm:text-base">
+          辅助您完成药物研发每一步。靶点发现 · 分子设计（小分子 / 多肽 / 抗体） · 分子对接 · 动力学模拟 · ADMET 预测 · 合成规划 · 临床前安全评估。
+        </p>
+        <p class="mt-3 max-w-xl text-sm text-white/60">
+          AIB 提供全链路可执行方案与决策建议，助您专注科学判断。
+        </p>
+        <a href="#product" class="glass mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-[0.14em]">
+          了解产品
+          <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+        </a>
+        <p class="mt-6 text-[11px] tracking-wide text-white/40">练手页 · 视觉参照 MotionSites 红球 Hero · 文案参照 aib.dslink.cn</p>
+      </section>
+
+      <div class="hidden lg:col-span-3 lg:block" aria-hidden="true"></div>
+
+      <aside id="capability" class="flex flex-col justify-center gap-0 lg:col-span-4">
+        <article class="border-b border-white/15 py-5">
+          <p class="text-xs font-bold tracking-[0.28em] text-[#ff1053]">01</p>
+          <h2 class="display mt-2 text-lg font-extrabold tracking-wide">AIBMIND 生模型</h2>
+          <p class="mt-2 text-sm leading-relaxed text-white/70">面向蛋白质结构预测、分子生成与优化的自研底座，可私有化、可随课题数据进化。</p>
+        </article>
+        <article class="border-b border-white/15 py-5">
+          <p class="text-xs font-bold tracking-[0.28em] text-[#ff1053]">02</p>
+          <h2 class="display mt-2 text-lg font-extrabold tracking-wide">AIBIM 跑模型</h2>
+          <p class="mt-2 text-sm leading-relaxed text-white/70">将 30+ 预置模型与工具链容器化调度，对接、生成、动力学、ADMET 开箱即用。</p>
+        </article>
+        <article class="py-5">
+          <p class="text-xs font-bold tracking-[0.28em] text-[#ff1053]">03</p>
+          <h2 class="display mt-2 text-lg font-extrabold tracking-wide">SuperBrain 调模型</h2>
+          <p class="mt-2 text-sm leading-relaxed text-white/70">用课题数据训练专属模型，数据可留在边界内，形成训练 → 推理 → 管理闭环。</p>
+        </article>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const drawer = document.getElementById("drawer");
+    document.getElementById("menuBtn").addEventListener("click", () => drawer.classList.add("open"));
+    document.getElementById("closeBtn").addEventListener("click", () => drawer.classList.remove("open"));
+    drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => drawer.classList.remove("open")));
+
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    function spawn() {
+      particles = Array.from({ length: 65 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: -Math.random() * 0.35 - 0.05,
+        a: Math.random() * 0.5 + 0.2,
+        pink: Math.random() > 0.45,
+      }));
+    }
+    function tick() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -10) p.y = canvas.height + 10;
+        if (p.x < -10) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -10;
+        ctx.beginPath();
+        ctx.fillStyle = p.pink
+          ? `rgba(255, 16, 83, ${p.a})`
+          : `rgba(255, 255, 255, ${p.a * 0.7})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(tick);
+    }
+    window.addEventListener("resize", () => {
+      resize();
+      spawn();
+    });
+    resize();
+    spawn();
+    tick();
+  </script>
+</body>
+</html>
